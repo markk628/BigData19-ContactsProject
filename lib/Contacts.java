@@ -221,7 +221,7 @@ public class Contacts {
 		String name;
 		Contact contact;
 		
-		System.out.print("Enter name of the contact you'd like to see: ");
+		System.out.print("Name of the contact to see: ");
 		name = this.handleInputException(Input.NAME);
 		if (name.equals("back")) {
 			return;
@@ -242,7 +242,7 @@ public class Contacts {
 				.map(contact -> contact.getNumber())
 				.toList();
 		
-		System.out.println("You have " + contacts.size() + " contacts");
+		System.out.println("You have " + contacts.size() + (contacts.size() != 1 ? " contacts" : " contact"));
 		System.out.println("--------------------------------");
 		System.out.println("            Contacts");
 		System.out.println("--------------------------------");
@@ -335,6 +335,7 @@ public class Contacts {
 		System.out.println("2. Number");
 		System.out.println("3. Address");
 		System.out.println("4. Relationship");
+		System.out.print("Field(s): ");
 		fields = this.handleInputException(Input.OPTION).replace(" ", "").split(",");
 		for (String field: fields) {
 			switch (field) {
@@ -417,7 +418,7 @@ public class Contacts {
 		System.out.println("--------------------------------");
 		System.out.println("             Delete");
 		System.out.println("--------------------------------");
-		System.out.print("Enter the name of the contact you'd like to delete: ");
+		System.out.print("Name of the contact to delete: ");
 		name = this.handleInputException(Input.NAME);
 		if (name.equals("back")) {
 			return;
