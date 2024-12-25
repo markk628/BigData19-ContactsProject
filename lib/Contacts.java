@@ -139,6 +139,7 @@ public class Contacts {
 		if (nameCount == 1) {
 			return contactsList.get(0);
 		} else if (contactsList.isEmpty()) {
+			System.out.println(name + " is not in your contacts");
 			return null;
 		}
 		System.out.println("There are " + nameCount + " people with the name " + name);
