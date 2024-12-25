@@ -200,6 +200,7 @@ public class Contacts {
 		}
 		this.contacts.put(number, new Contact(number, name, address, relationship));
 		System.out.println("********** Contact created successfully **********");
+		System.out.println("----------------------------------");
 	}
 
 	// number에 해당되는 연라처의 정보를 출력하는 method
@@ -369,6 +370,7 @@ public class Contacts {
 				System.out.println("********** " + field + " is not an option **********");
 			}
 		}
+		System.out.println("--------------------------------");
 	}
 
 	// 입력받은 번호에 해당되는 연락처의 이름, 주소, 그리고 관계를 수정하는 method
@@ -402,6 +404,7 @@ public class Contacts {
 		contactToUpdate.setAddress(address);
 		contactToUpdate.setRelationship(relationship);
 		System.out.println("********** Contact updated successfully **********");
+		System.out.println("--------------------------------");
 	}
 
 	// 연락처를 삭제하는 method
@@ -423,5 +426,6 @@ public class Contacts {
 		}
 		this.contacts.remove(contactToDelete.getNumber());
 		System.out.println("********* " + contactToDelete.getName() + " has been deleted **********");
+		System.out.println("--------------------------------");
 	}
 }
