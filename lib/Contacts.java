@@ -235,7 +235,8 @@ public class Contacts {
 
 	// 이름순으로 정렬한 연락처들의 정보를 호출하는 method
 	public void readContacts() {
-		List<String> numbers = this.contacts.values()
+		List<String> numbers = this.contacts
+				.values()
 				.stream()
 				.sorted(Comparator.comparing(Contact::getName))
 				.map(contact -> contact.getNumber())
