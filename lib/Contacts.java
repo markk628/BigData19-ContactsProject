@@ -147,6 +147,7 @@ public class Contacts {
 			System.out.println((i + 1) + ". " + contactsList.get(i));
 		}
 		while (true) {
+			System.out.print("Contact: ");
 			option = handleInputException(Input.OPTION);
 			if (option.equals("back")) {
 				return null;
