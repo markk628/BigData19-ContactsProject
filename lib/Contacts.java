@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class Contacts implements DataAccessObjectInterface {
 	private HashMap<String, Contact> contacts;
-	private transient Scanner scanner; 
+	private Scanner scanner; 
 
 	// 무엇을 입력받을지 여부하는 enum
 	private enum Input {
