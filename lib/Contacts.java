@@ -1,14 +1,12 @@
 package contactsProject1.lib;
 
-import java.io.Serializable;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class Contacts implements DataAccessObjectInterface, Serializable {
-	private static final long serialVersionUID = -3988700222619788900L;
+public class Contacts implements DataAccessObjectInterface {
 	private HashMap<String, Contact> contacts;
 	private transient Scanner scanner; 
 
@@ -34,17 +32,11 @@ public class Contacts implements DataAccessObjectInterface, Serializable {
 	}
 
 	// 생성자
-	public Contacts(Scanner scanner) {
+	public Contacts(Scanner scanner, HashMap<String, Contact> contacts) {
 		this.scanner = scanner;
+		this.contacts = contacts;
 	}
 	
-	public void setScanner(Scanner scanner) {
-		this.scanner = scanner;
-	}
-	
-	public void setContacts() {
-		this.contacts = this.contacts == null ? new HashMap<>() : this.contacts;
-	}
 
 	// 입력받은 문자열이 비어있으면 Exceptiond을 던지고 아니면 반환하는 method
 	private String returnInputIfValid(Input option) throws Exception {
@@ -248,6 +240,18 @@ public class Contacts implements DataAccessObjectInterface, Serializable {
 		contactToUpdate.setRelationship(relationship);
 		System.out.println("********** Contact updated successfully **********");
 		System.out.println("--------------------------------");
+	}
+	
+	@Override
+	public HashMap<String, Contact> getContacts() {
+		return this.contacts;
+	}
+	
+	@Override
+	public void setContacts() {
+		if (this.contacts == null) {
+			this.contacts = new HashMap<>();
+		}
 	}
 
 	// 연락처 생성후 저장하는 method

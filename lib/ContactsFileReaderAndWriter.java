@@ -7,33 +7,31 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Scanner;
+import java.util.HashMap;
 
 public class ContactsFileReaderAndWriter {
 	private final String PATH = FilePath.path();
 	private File contactsFile = new File(this.PATH);
-	private DataAccessObjectInterface contacts;
+	private HashMap<String, Contact> contacts;
 
 	public ContactsFileReaderAndWriter() {
 		this.contacts = this.readFileAndGetContacts();
 	}
 
-	public DataAccessObjectInterface getContacts(Scanner scanner) {
+	public HashMap<String, Contact>  getContacts() {
 		if (this.contacts == null) {
-			this.contacts = new Contacts(scanner);
-		} else {
-			this.contacts.setScanner(scanner);
+			this.contacts = new HashMap<>();
 		}
-		this.contacts.setContacts();
 		return this.contacts;
 	}
 	
-	private DataAccessObjectInterface readFileAndGetContacts() {
+	@SuppressWarnings("unchecked")
+	private HashMap<String, Contact> readFileAndGetContacts() {
 		ObjectInputStream input = null;
 		try {
 			this.contactsFile.createNewFile();
 			input = new ObjectInputStream(new FileInputStream(this.PATH));
-			return (DataAccessObjectInterface)input.readObject();
+			return (HashMap<String, Contact> )input.readObject();
 		} catch (ClassCastException e) {
 			System.out.println("ClassCastException caught while trying to cast object read from ObjectInputStream to HashMap<String, Contact> ContactsFileReaderAndWriter:readFile");
 			System.out.println(e.getMessage());
@@ -59,7 +57,7 @@ public class ContactsFileReaderAndWriter {
 		return null;
 	}
 
-	public void writeFile(DataAccessObjectInterface newContacts) {
+	public void writeFile(HashMap<String, Contact> newContacts) {
 		ObjectOutputStream output = null;
 		try {
 			output = new ObjectOutputStream(new FileOutputStream(this.PATH));

@@ -1,6 +1,7 @@
 package contactsProject1.app;
 
 import java.util.Scanner;
+import contactsProject1.lib.Contacts;
 import contactsProject1.lib.ContactsFileReaderAndWriter;
 import contactsProject1.lib.DataAccessObjectInterface;
 
@@ -9,7 +10,7 @@ public class ContactsApp {
 		String option;
 		ContactsFileReaderAndWriter contactsEditor = new ContactsFileReaderAndWriter();
 		Scanner scanner = new Scanner(System.in);
-		DataAccessObjectInterface contacts = contactsEditor.getContacts(scanner);
+		DataAccessObjectInterface contacts = new Contacts(scanner, contactsEditor.getContacts());
 		
 		while (true) {
 			System.out.println();
@@ -46,7 +47,7 @@ public class ContactsApp {
 				break;
 			case '6':
 				System.out.println("Closing contacts app");
-				contactsEditor.writeFile(contacts);
+				contactsEditor.writeFile(contacts.getContacts());
 				scanner.close();
 				return;
 			default:
