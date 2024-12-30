@@ -1,17 +1,16 @@
 package contactsProject1.app;
 
 import java.util.Scanner;
-
-import contactsProject1.lib.Contacts;
 import contactsProject1.lib.ContactsFileReaderAndWriter;
+import contactsProject1.lib.DataAccessObjectInterface;
 
 public class ContactsApp {
 	public static void main(String[] args) {
+		String option;
 		ContactsFileReaderAndWriter contactsEditor = new ContactsFileReaderAndWriter();
 		Scanner scanner = new Scanner(System.in);
-		Contacts contacts = new Contacts(contactsEditor.getContacts(), scanner);
-		String option;
-
+		DataAccessObjectInterface contacts = contactsEditor.getContacts(scanner);
+		
 		while (true) {
 			System.out.println();
 			System.out.println("============================");
@@ -31,23 +30,23 @@ public class ContactsApp {
 			System.out.println();
 			switch (option.charAt(0)) {
 			case '1':
-				contacts.createContact();
+				contacts.insert();
 				break;
 			case '2':
-				contacts.readContact();
+				contacts.select(null, true);
 				break;
 			case '3':
-				contacts.readContacts();
+				contacts.select();
 				break;
 			case '4':
-				contacts.updateContact();
+				contacts.update();
 				break;
 			case '5':
-				contacts.deleteContact();
+				contacts.delete();
 				break;
 			case '6':
 				System.out.println("Closing contacts app");
-				contactsEditor.writeFile(contacts.getContacts());
+				contactsEditor.writeFile(contacts);
 				scanner.close();
 				return;
 			default:

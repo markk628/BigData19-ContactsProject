@@ -1,13 +1,16 @@
 package contactsProject1.lib;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicReference;
 
-public class Contacts {
+public class Contacts implements DataAccessObjectInterface, Serializable {
+	private static final long serialVersionUID = -3988700222619788900L;
 	private HashMap<String, Contact> contacts;
-	private Scanner scanner; 
+	private transient Scanner scanner; 
 
 	// 무엇을 입력받을지 여부하는 enum
 	private enum Input {
@@ -31,16 +34,18 @@ public class Contacts {
 	}
 
 	// 생성자
-	public Contacts(HashMap<String, Contact> contacts, Scanner scanner) {
-		this.contacts = contacts != null ? contacts : new HashMap<>();
+	public Contacts(Scanner scanner) {
 		this.scanner = scanner;
 	}
-
-	// 연락처 hashmap을 반환하느 method
-	public HashMap<String, Contact> getContacts() {
-		return this.contacts;
+	
+	public void setScanner(Scanner scanner) {
+		this.scanner = scanner;
 	}
 	
+	public void setContacts() {
+		this.contacts = this.contacts == null ? new HashMap<>() : this.contacts;
+	}
+
 	// 입력받은 문자열이 비어있으면 Exceptiond을 던지고 아니면 반환하는 method
 	private String returnInputIfValid(Input option) throws Exception {
 		String field = this.scanner.nextLine();
@@ -104,7 +109,7 @@ public class Contacts {
 			return this.handleInputException(option);
 		}
 	}
-	
+
 	// 입력받은 연락처의 관계 문자열에 해당되는 Relationship enum case를 반환하는 method
 	private Relationship handleRelationshipException() {
 		String relationship = this.handleInputException(Input.RELATIONSHIP);
@@ -125,24 +130,18 @@ public class Contacts {
 	}
 
 	// 이름이 name인 연락처들을 뫃아 관계순으로 정렬시킨후 그중에서 사용자가 선택한 연락처를 반환하는 method
-	private Contact getContact(String name) {
-		List<Contact> contactsList = this.contacts
-				.values()
-				.stream()
-				.filter(contact -> contact.getName().equals(name))
-				.sorted(Comparator.comparing(Contact::getRelationship))
-				.toList();		
+	private Contact getContact(List<Contact> contactsList) {
 		int nameCount = contactsList.size();
 		int selection;
 		String option;
-		
+
 		if (nameCount == 1) {
 			return contactsList.get(0);
 		} else if (contactsList.isEmpty()) {
-			System.out.println(name + " is not in your contacts");
+			System.out.println("You have no contacts");
 			return null;
 		}
-		System.out.println("There are " + nameCount + " people with the name " + name);
+		System.out.println("There are " + nameCount + " people with the name " + contactsList.get(0).getName());
 		System.out.println("Select the contact to update");
 		for (int i = 0; i < nameCount; i++) {
 			System.out.println((i + 1) + ". " + contactsList.get(i));
@@ -159,97 +158,6 @@ public class Contacts {
 			} else {
 				System.out.println(selection + " is not an option");
 			}
-		}
-	}
-
-	// 연락처 생성후 저장하는 method
-	public void createContact() {
-		String number;
-		String name;
-		String address;
-		Relationship relationship;
-
-		System.out.println("----------------------------------");
-		System.out.println("          Create contact");
-		System.out.println("----------------------------------");
-		System.out.print("Number (ex. 01011112222): ");
-		number = this.handleInputException(Input.NUMBER);
-		if (number.equals("back")) {
-			return;
-		}
-		// 이미 저장되어있는 번호면 저장되어있는 연락처를 수정하고싶냐고 물어본다
-		if (this.contacts.containsKey(number)) {
-			System.out.println("Contact with number already exists. Would you like to update the contact? (y/n): ");
-			if (this.handleInputException(Input.YESORNO).equals("y")) {
-				this.updateContact(number);
-			}
-			return;
-		}
-		System.out.print("Name: ");
-		name = this.handleInputException(Input.NAME);
-		if (name.equals("back")) {
-			return;
-		}
-		System.out.print("Address: ");
-		address = this.handleInputException(Input.ADDRESS);
-		if (address.equals("back")) {
-			return;
-		}
-		System.out.print("Relationship (family/friend/etc): ");
-		relationship = this.handleRelationshipException();
-		if (relationship == null) {
-			return;
-		}
-		this.contacts.put(number, new Contact(number, name, address, relationship));
-		System.out.println("********** Contact created successfully **********");
-		System.out.println("----------------------------------");
-	}
-
-	// number에 해당되는 연라처의 정보를 출력하는 method
-	private void readContact(String number) {
-		Contact contact = this.contacts.get(number);
-
-		System.out.println("Name: " + contact.getName());
-		System.out.println("Number: " + contact.getNumber());
-		System.out.println("Address: " + contact.getAddress());
-		System.out.println("Relationship: " + contact.getRelationship());
-	}
-
-	// 입력받은 이름에 해당되는 연라처의 정보를 출력하는 method
-	// 입력받은 이름을 이용해 getContact(String name)를 호출해서 Contact instance를 받고
-	// 받은 Contact instance의 번호를 이용해 readContact(String number)를 호출
-	public void readContact() {
-		String name;
-		Contact contact;
-		
-		System.out.print("Name of the contact to see: ");
-		name = this.handleInputException(Input.NAME);
-		if (name.equals("back")) {
-			return;
-		}
-		contact = this.getContact(name);
-		if (contact == null) {
-			return;
-		}
-		this.readContact(contact.getNumber());
-	}
-
-	// 이름순으로 정렬한 연락처들의 정보를 호출하는 method
-	public void readContacts() {
-		List<String> numbers = this.contacts
-				.values()
-				.stream()
-				.sorted(Comparator.comparing(Contact::getName))
-				.map(contact -> contact.getNumber())
-				.toList();
-		
-		System.out.println("You have " + contacts.size() + (contacts.size() != 1 ? " contacts" : " contact"));
-		System.out.println("--------------------------------");
-		System.out.println("            Contacts");
-		System.out.println("--------------------------------");
-		for (String number: numbers) {
-			this.readContact(number);
-			System.out.println("--------------------------------");
 		}
 	}
 
@@ -296,7 +204,7 @@ public class Contacts {
 	}
 
 	// contactToUpdate의 관계를 수정하는 method	
-	private String updateConactRelationship2(Contact contactToUpdate) {
+	private String updateConactRelationship(Contact contactToUpdate) {
 		Relationship relationship;
 
 		System.out.print("New relationship for " + contactToUpdate.getName() + ": ");
@@ -308,10 +216,144 @@ public class Contacts {
 		return relationship.toString();
 	}
 
+	// 입력받은 번호에 해당되는 연락처의 이름, 주소, 그리고 관계를 수정하는 method
+	// insert()에 사용
+	private void updateContact(String number) {
+		Contact contactToUpdate = this.contacts.get(number);
+		String name;
+		String address;
+		Relationship relationship;
+
+		System.out.println("--------------------------------");
+		System.out.println("             Update");
+		System.out.println("--------------------------------");
+		System.out.print("Name: ");
+		name = this.handleInputException(Input.NAME);
+		if (name.equals("back")) {
+			return;
+		}
+		System.out.print("Address: ");
+		address = this.handleInputException(Input.ADDRESS);
+		if (address.equals("back")) {
+			return;
+		}
+		System.out.print("Relationship (family/friend/etc): ");
+		relationship = this.handleRelationshipException();
+		if (relationship == null) {
+			return;
+		}
+		contactToUpdate.setNumber(number);
+		contactToUpdate.setName(name);
+		contactToUpdate.setAddress(address);
+		contactToUpdate.setRelationship(relationship);
+		System.out.println("********** Contact updated successfully **********");
+		System.out.println("--------------------------------");
+	}
+
+	// 연락처 생성후 저장하는 method
+	@Override
+	public void insert() {
+		String number;
+		String name;
+		String address;
+		Relationship relationship;
+
+		System.out.println("----------------------------------");
+		System.out.println("          Create contact");
+		System.out.println("----------------------------------");
+		System.out.print("Number (ex. 01011112222): ");
+		number = this.handleInputException(Input.NUMBER);
+		if (number.equals("back")) {
+			return;
+		}
+		// 이미 저장되어있는 번호면 저장되어있는 연락처를 수정하고싶냐고 물어본다
+		if (this.contacts.containsKey(number)) {
+			System.out.println("Contact with number already exists. Would you like to update the contact? (y/n): ");
+			if (this.handleInputException(Input.YESORNO).equals("y")) {
+				this.updateContact(number);
+			}
+			return;
+		}
+		System.out.print("Name: ");
+		name = this.handleInputException(Input.NAME);
+		if (name.equals("back")) {
+			return;
+		}
+		System.out.print("Address: ");
+		address = this.handleInputException(Input.ADDRESS);
+		if (address.equals("back")) {
+			return;
+		}
+		System.out.print("Relationship (family/friend/etc): ");
+		relationship = this.handleRelationshipException();
+		if (relationship == null) {
+			return;
+		}
+		this.contacts.put(number, new Contact(number, name, address, relationship));
+		System.out.println("********** Contact created successfully **********");
+		System.out.println("----------------------------------");
+	}
+
+	// contacts list의 연락처들을 출력하는 method
+	private void printContacts(List<Contact> contacts) {
+		for (Contact contact: contacts) {
+			System.out.println("Name: " + contact.getName());
+			System.out.println("Number: " + contact.getNumber());
+			System.out.println("Address: " + contact.getAddress());
+			System.out.println("Relationship: " + contact.getRelationship());
+			System.out.println("--------------------------------");
+		}
+	}
+
+	// 입력받은 이름에 해당되는 연라처의 정보를 반환하는 method
+	// shouldPrintContact가 true면 정보 출력
+	@Override
+	public List<Contact> select(String name, boolean shouldPrintContact) {
+		AtomicReference<String> nameToSearch = new AtomicReference<>();
+		if (name == null) {
+			System.out.println("Name of contact: ");
+			nameToSearch.set(this.handleInputException(Input.NAME));;
+		} else {
+			nameToSearch.set(name);
+		}
+
+		List<Contact> contacts = this.contacts
+				.values()
+				.stream()
+				.filter(contact -> contact.getName().equals(nameToSearch.get()))
+				.sorted(Comparator.comparing(Contact::getRelationship))
+				.toList();
+		if (shouldPrintContact) {
+			System.out.println("You have " + contacts.size() + (contacts.size() != 1 ? " contacts" : " contact"));
+			System.out.println("--------------------------------");
+			System.out.println("            Contacts");
+			System.out.println("--------------------------------");
+			this.printContacts(contacts);
+		}
+		return contacts;
+	}
+
+	// 이름순으로 정렬한 연락처들의 정보를 반환하는 method
+	@Override
+	public List<Contact> select() {
+		List<Contact> contacts = this.contacts
+				.values()
+				.stream()
+				.sorted(Comparator.comparing(Contact::getName))
+				.toList();
+		System.out.println("You have " + contacts.size() + (contacts.size() != 1 ? " contacts" : " contact"));
+		System.out.println("--------------------------------");
+		System.out.println("            Contacts");
+		System.out.println("--------------------------------");
+		this.printContacts(contacts);
+		return contacts;
+	}
+
 	// 입력받은 이름에 해당되는 연락처를 수정하는 method
 	// 입력받은 이름을 이용해 getContact(String name)를 호출해서 Contact instance를 받고
 	// 받은 Contact instance의 정보 수정
-	public void updateContact() {
+	@Override
+	public void update() {
 		Contact contactToUpdate;
 		String name;
 		String number;
@@ -327,7 +369,7 @@ public class Contacts {
 		if (name.equals("back")) {
 			return;
 		} 
-		contactToUpdate = this.getContact(name);
+		contactToUpdate = this.getContact(this.select(name, false));
 		if (contactToUpdate == null) {
 			return;
 		}
@@ -362,7 +404,7 @@ public class Contacts {
 				System.out.println("********** " + name + "'s address updated successfully **********");
 				break;
 			case "4":
-				relationship = this.updateConactRelationship2(contactToUpdate);
+				relationship = this.updateConactRelationship(contactToUpdate);
 				if (relationship.equals("back")) {
 					return;
 				}
@@ -377,42 +419,9 @@ public class Contacts {
 		System.out.println("--------------------------------");
 	}
 
-	// 입력받은 번호에 해당되는 연락처의 이름, 주소, 그리고 관계를 수정하는 method
-	// createContact()에 사용
-	private void updateContact(String number) {
-		Contact contactToUpdate = this.contacts.get(number);
-		String name;
-		String address;
-		Relationship relationship;
-
-		System.out.println("--------------------------------");
-		System.out.println("             Update");
-		System.out.println("--------------------------------");
-		System.out.print("Name: ");
-		name = this.handleInputException(Input.NAME);
-		if (name.equals("back")) {
-			return;
-		}
-		System.out.print("Address: ");
-		address = this.handleInputException(Input.ADDRESS);
-		if (address.equals("back")) {
-			return;
-		}
-		System.out.print("Relationship (family/friend/etc): ");
-		relationship = this.handleRelationshipException();
-		if (relationship == null) {
-			return;
-		}
-		contactToUpdate.setNumber(number);
-		contactToUpdate.setName(name);
-		contactToUpdate.setAddress(address);
-		contactToUpdate.setRelationship(relationship);
-		System.out.println("********** Contact updated successfully **********");
-		System.out.println("--------------------------------");
-	}
-
 	// 연락처를 삭제하는 method
-	public void deleteContact() {
+	@Override
+	public void delete() {
 		Contact contactToDelete;
 		String name;
 
@@ -424,7 +433,7 @@ public class Contacts {
 		if (name.equals("back")) {
 			return;
 		}
-		contactToDelete = this.getContact(name);
+		contactToDelete = this.getContact(this.select(name, false));
 		if (contactToDelete == null) {
 			return;
 		}
