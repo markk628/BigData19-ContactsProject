@@ -29,23 +29,23 @@ public class ContactsApp {
 				continue;
 			}
 			System.out.println();
-			switch (option.charAt(0)) {
-			case '1':
+			switch (option) {
+			case "1":
 				contacts.insert();
 				break;
-			case '2':
+			case "2":
 				contacts.select(null, true);
 				break;
-			case '3':
+			case "3":
 				contacts.select();
 				break;
-			case '4':
+			case "4":
 				contacts.update();
 				break;
-			case '5':
+			case "5":
 				contacts.delete();
 				break;
-			case '6':
+			case "6":
 				System.out.println("Closing contacts app");
 				contactsEditor.writeFile(contacts.getContacts());
 				scanner.close();
